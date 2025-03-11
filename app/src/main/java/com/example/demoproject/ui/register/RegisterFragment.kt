@@ -29,37 +29,45 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.buttonLogin.setOnClickListener {
-            registerViewModel.registerUiState.observe(viewLifecycleOwner) { uiState ->
-                when {
-                    uiState.isLoading -> {
-                        showLoading()
-                    }
 
-                    uiState.error != null -> {
-                        hideLoading()
-                        Toast.makeText(context, uiState.error.toString(), Toast.LENGTH_LONG).show()
-                    }
-
-                    uiState.isSuccess -> {
-                        hideLoading()
-                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG)
-                            .show()
-                        view.findNavController()
-                            .navigate(R.id.action_registerFragment_to_loginFragment)
-                    }
+        registerViewModel.registerUiState.observe(viewLifecycleOwner) { uiState ->
+            when {
+                uiState.isLoading -> {
+                    showLoading()
+                    binding.buttonRegister.isEnabled = false
                 }
 
+                uiState.error != null -> {
+                    hideLoading()
+                    binding.buttonRegister.isEnabled = true
+                    Toast.makeText(context, uiState.error, Toast.LENGTH_LONG).show()
+                }
+
+                uiState.isSuccess -> {
+                    hideLoading()
+                    binding.buttonRegister.isEnabled = true
+                    Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
+
+                    view.findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+                }
             }
+        }
+
+        binding.buttonRegister.setOnClickListener {
+            val name = binding.editTextName.text.toString()
+            val username = binding.editTextUsername.text.toString()
+            val password = binding.editTextPassword.text.toString()
+
             registerViewModel.register(
                 User(
-                    name = binding.editTextName.text.toString(),
-                    username = binding.editTextEmail.text.toString(),
-                    password = binding.editTextPassword.text.toString(),
+                    username = username,
+                    password = password,
+                    name = name,
                 )
             )
         }
     }
+
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE

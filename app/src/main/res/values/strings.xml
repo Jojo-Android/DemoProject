@@ -8,10 +8,12 @@
     <string name="password">PASSWORD</string>
     <string name="error_message_general">Something went wrong!</string>
     <string name="no_data_message">No data available</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edit_text_name">NAME</string>
     <string name="edit_text_username">USERNAME</string>
     <string name="button_save">Save</string>
     <string name="button_delete">Delete</string>
+    <string name="menu_product">Product</string>
+    <string name="menu_my_product">My Product</string>
+    <string name="menu_logout">Logout</string>
 </resources>

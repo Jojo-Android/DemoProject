@@ -11,7 +11,9 @@ import com.example.demoproject.repository.AuthRepository
 import com.example.demoproject.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,30 +33,36 @@ class MyProductViewModel @Inject constructor(
     fun fetchProductsEntity() {
         viewModelScope.launch(Dispatchers.IO) {
             _myProductUiStateLiveData.postValue(MyProductUiState(isLoading = true))
+
             try {
                 val userId = preferencesHelper.getUserId()
-                val data = productRepository.getMyProduct(userId)
+                val products = productRepository.getMyProduct(userId)
+
                 val selectedIds = _selectedProductsEntity.value?.map { it.id } ?: emptyList()
-                val updatedProducts = data.map { product ->
+                val updatedProducts = products.map { product ->
                     product.copy(isSelected = selectedIds.contains(product.id))
                 }
+
                 _myProductUiStateLiveData.postValue(
                     MyProductUiState(
                         data = updatedProducts,
                         isLoading = false
                     )
                 )
+
             } catch (e: Exception) {
-                Log.e("MyProductViewModel", "Error loading my product", e)
+                Log.e("MyProductViewModel", "Error loading my products", e)
                 _myProductUiStateLiveData.postValue(
                     MyProductUiState(
-                        error = e.message,
+                        error = "An unexpected error occurred: ${e.message}",
                         isLoading = false
                     )
                 )
             }
         }
     }
+
+
 
     fun deleteSelectedProductsEntity() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,16 +75,20 @@ class MyProductViewModel @Inject constructor(
     }
 
     fun onProductSelected(productEntity: ProductEntity, isSelected: Boolean) {
-        val currentSelected = _selectedProductsEntity.value?.toMutableSet() ?: mutableSetOf()
-        if (isSelected) {
-            currentSelected.add(productEntity)
-        } else {
-            currentSelected.remove(productEntity)
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentSelected = _selectedProductsEntity.value?.toMutableSet() ?: mutableSetOf()
+            if (isSelected) {
+                currentSelected.add(productEntity)
+            } else {
+                currentSelected.remove(productEntity)
+            }
+            _selectedProductsEntity.value = currentSelected
         }
-        _selectedProductsEntity.value = currentSelected
     }
 
     fun logout() {
-        authRepository.logout()
+        viewModelScope.launch(Dispatchers.IO) {
+            authRepository.logout()
+        }
     }
 }

@@ -12,7 +12,7 @@ import com.example.demoproject.model.Product
 import javax.inject.Inject
 
 class ProductAdapter @Inject constructor() :
-    ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
+    ListAdapter<Product, ProductViewHolder>(ProductDiffCallback()) {
 
     private var productSelectedListener: ((Product, Boolean) -> Unit)? = null
 
@@ -34,28 +34,7 @@ class ProductAdapter @Inject constructor() :
         position: Int
     ) {
         val data = getItem(position)
-        holder.bind(data)
-    }
-
-    inner class ProductViewHolder(private val binding: ListItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(product: Product) {
-            binding.apply {
-                textViewNameItem.text = product.title
-                textViewPriceItem.text = product.price.toString()
-                imageViewProduct.load(product.images[0]) {
-                    crossfade(true)
-                }
-
-                checkBox.isChecked = product.isSelected
-
-                checkBox.setOnCheckedChangeListener { _, isChecked ->
-                    product.isSelected = isChecked
-                    productSelectedListener?.invoke(product, isChecked)
-                }
-            }
-        }
+        holder.bind(data, productSelectedListener)
     }
 
     class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
@@ -66,10 +45,7 @@ class ProductAdapter @Inject constructor() :
         override fun areContentsTheSame(oldProduct: Product, newProduct: Product): Boolean {
             return oldProduct == newProduct
         }
-
     }
-
-
 }
 
 

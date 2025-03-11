@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demoproject.R
 import com.example.demoproject.adapter.MyProductAdapter
 import com.example.demoproject.databinding.FragmentMyProductBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -27,8 +28,7 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyProductBinding.inflate(layoutInflater)
         return binding.root
@@ -54,6 +54,7 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
                     )
                 )
             }
+            bottomNavigation.selectedItemId = R.id.myproduct
             bottomNavigation.setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.product -> {
@@ -63,14 +64,11 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
                     }
 
                     R.id.logout -> {
-                        myProductViewModel.logout()
-                        view.findNavController()
-                            .navigate(R.id.action_myProductFragment_to_loginFragment)
-                        Toast.makeText(context, "Logout successful!", Toast.LENGTH_LONG).show()
+                        showLogoutDialog(view)
                         true
                     }
 
-                    else -> false
+                    else -> true
                 }
             }
 
@@ -87,7 +85,6 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
             }
             binding.buttonDelete.setOnClickListener {
                 myProductViewModel.deleteSelectedProductsEntity()
-
                 Toast.makeText(context, "Products deleted!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -115,6 +112,7 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
 
                 else -> {
                     hideLoading()
+                    myProductAdapter.submitList(uiState.data)
                     binding.textViewError.text = getString(R.string.no_data_message)
                 }
             }
@@ -127,5 +125,20 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
 
     private fun hideLoading() {
         binding.progressBar.visibility = View.GONE
+    }
+
+    private fun showLogoutDialog(view: View) {
+        val builder = MaterialAlertDialogBuilder(requireContext()).setTitle("Logout")
+            .setMessage("Are you sure you want to log out?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                myProductViewModel.logout()
+                view.findNavController().navigate(R.id.action_myProductFragment_to_loginFragment)
+                dialog.dismiss()
+                Toast.makeText(context, "Logout successful!", Toast.LENGTH_LONG).show()
+            }.setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.show()
     }
 }

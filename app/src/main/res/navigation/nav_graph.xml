@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/ListProductFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -17,6 +17,7 @@
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.demoproject.ui.register.RegisterFragment"
@@ -26,6 +27,7 @@
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/ListProductFragment"
         android:name="com.example.demoproject.ui.listProduct.ListProductFragment"
@@ -39,6 +41,7 @@
             app:destination="@id/loginFragment" />
     </fragment>
     <fragment
+
         android:id="@+id/myProductFragment"
         android:name="com.example.demoproject.ui.myProduct.MyProductFragment"
         android:label="fragment_my_product"

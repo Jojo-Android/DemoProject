@@ -1,5 +1,6 @@
 package com.example.demoproject.ui.listProduct
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,8 +14,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demoproject.R
 import com.example.demoproject.adapter.ProductAdapter
+import com.example.demoproject.data.PreferencesHelper
 import com.example.demoproject.databinding.FragmentProductListBinding
 import com.example.demoproject.model.Product
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,6 +31,9 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
     @Inject
     lateinit var productAdapter: ProductAdapter
 
+    @Inject
+    lateinit var preferencesHelper: PreferencesHelper
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -38,11 +44,17 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val userId = preferencesHelper.getUserId()
+        if (userId == -1L) {
+            view.findNavController().navigate(R.id.loginFragment)
+        }
+
         listProductViewModel.fetchProduct()
 
         observerProduct()
 
         binding.apply {
+
             recyclerViewItemList.apply {
                 adapter = productAdapter
                 layoutManager = LinearLayoutManager(
@@ -66,19 +78,17 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
                     }
 
                     R.id.logout -> {
-                        listProductViewModel.logout()
-                        view.findNavController()
-                            .navigate(R.id.action_ListProductFragment_to_loginFragment)
+                        showLogoutDialog(view)
                         true
                     }
 
                     else -> false
                 }
             }
+        }
 
-            productAdapter.setProductSelectedListener { product, isSelected ->
-                listProductViewModel.onProductSelected(product, isSelected)
-            }
+        productAdapter.setProductSelectedListener { product, isSelected ->
+            listProductViewModel.onProductSelected(product, isSelected)
         }
 
 
@@ -91,7 +101,6 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
 
         binding.buttonSave.setOnClickListener {
             listProductViewModel.saveSelectedProducts()
-
             Toast.makeText(context, "Products saved!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -123,6 +132,24 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
             }
         }
     }
+
+    private fun showLogoutDialog(view: View) {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to log out?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                listProductViewModel.logout()
+                dialog.dismiss()
+                view.findNavController().navigate(R.id.action_ListProductFragment_to_loginFragment)
+                Toast.makeText(context, "Logout successful!", Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.show()
+    }
+
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE

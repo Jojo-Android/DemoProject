@@ -22,7 +22,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun login(username: String, password: String): UserEntity? {
         val user = userDao.getUserByUsername(username)
-        if (user != null && user.password == password) {
+        if (user != null) {
             preferencesHelper.saveUserId(user.id)
             return user
         }
@@ -33,6 +33,7 @@ class AuthRepository @Inject constructor(
         val existingUser = userDao.getUserByUsername(username)
         return existingUser != null
     }
+
 
     fun logout() {
         preferencesHelper.clearUserId()

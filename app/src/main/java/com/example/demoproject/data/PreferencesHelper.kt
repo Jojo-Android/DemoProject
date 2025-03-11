@@ -13,7 +13,7 @@ class PreferencesHelper @Inject constructor(
     private val KEY_USER_ID = "user_id"
 
     private val sharedPreferences: SharedPreferences =
-        context.applicationContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
     fun saveUserId(userId: Long) {
         sharedPreferences.edit {

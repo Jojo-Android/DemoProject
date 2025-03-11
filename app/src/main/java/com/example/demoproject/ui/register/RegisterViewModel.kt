@@ -28,16 +28,29 @@ class RegisterViewModel @Inject constructor(
                     error = null
                 )
             )
+
             try {
+                if (user.name.isBlank() || user.username.isBlank() || user.password.isBlank()) {
+                    _registerUiState.postValue(
+                        RegisterUiState(
+                            isLoading = false,
+                            isSuccess = false,
+                            error = "All fields are required."
+                        )
+                    )
+                    return@launch
+                }
+
                 if (authRepository.isExistingUser(username = user.username)) {
                     _registerUiState.postValue(
                         RegisterUiState(
                             isLoading = false,
                             isSuccess = false,
-                            error = "User already exists. Please choose a different username",
+                            error = "User already exists. Please choose a different username."
                         )
                     )
-                } else {
+                    return@launch
+                }else{
                     authRepository.register(user)
                     _registerUiState.postValue(
                         RegisterUiState(
@@ -47,16 +60,17 @@ class RegisterViewModel @Inject constructor(
                         )
                     )
                 }
+
+
             } catch (e: Exception) {
                 _registerUiState.postValue(
                     RegisterUiState(
                         isLoading = false,
                         isSuccess = false,
-                        error = e.message
+                        error = "Registration failed: ${e.message}"
                     )
                 )
             }
-
         }
     }
 

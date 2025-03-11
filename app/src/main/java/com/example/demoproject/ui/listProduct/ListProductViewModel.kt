@@ -13,6 +13,7 @@ import com.example.demoproject.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +34,7 @@ class ListProductViewModel @Inject constructor(
     fun fetchProduct() {
         viewModelScope.launch(Dispatchers.IO) {
             _listProductUiState.postValue(ListProductUiState(isLoading = true))
+
             try {
                 val data = productRepository.getProduct()
 
@@ -40,43 +42,45 @@ class ListProductViewModel @Inject constructor(
                 val updatedProducts = data.map { product ->
                     product.copy(isSelected = selectedIds.contains(product.id))
                 }
+
                 _listProductUiState.postValue(ListProductUiState(data = updatedProducts, isLoading = false))
+
             } catch (e: Exception) {
-                Log.e("ListProductViewModel", "Error loading portfolio", e)
-                _listProductUiState.postValue(
-                    ListProductUiState(
-                        error = e.message,
-                        isLoading = false,
-                    )
-                )
+                Log.e("ListProductViewModel", "Error loading products", e)
+                _listProductUiState.postValue(ListProductUiState(error = e.message, isLoading = false))
             }
         }
     }
 
+
     fun saveSelectedProducts() {
-        val userId = preferencesHelper.getUserId()
-        if (userId != -1L) {
-            viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = preferencesHelper.getUserId()
+            if (userId != -1L) {
                 _selectedProducts.value?.forEach { product ->
                     productRepository.saveProduct(userId, product)
                 }
                 _selectedProducts.postValue(emptySet())
+                fetchProduct()
             }
-            fetchProduct()
         }
     }
 
     fun onProductSelected(product: Product, isSelected: Boolean) {
-        val currentSelected = _selectedProducts.value?.toMutableSet() ?: mutableSetOf()
-        if (isSelected) {
-            currentSelected.add(product)
-        } else {
-            currentSelected.remove(product)
+        viewModelScope.launch {
+            val currentSelected = _selectedProducts.value?.toMutableSet() ?: mutableSetOf()
+            if (isSelected) {
+                currentSelected.add(product)
+            } else {
+                currentSelected.remove(product)
+            }
+            _selectedProducts.value = currentSelected
         }
-        _selectedProducts.value = currentSelected
     }
 
     fun logout() {
-        authRepository.logout()
+        viewModelScope.launch(Dispatchers.IO) {
+            authRepository.logout()
+        }
     }
 }
