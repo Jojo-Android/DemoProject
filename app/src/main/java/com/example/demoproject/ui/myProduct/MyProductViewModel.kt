@@ -1,19 +1,21 @@
 package com.example.demoproject.ui.myProduct
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.demoproject.R
 import com.example.demoproject.data.PreferencesHelper
-import com.example.demoproject.model.ProductEntity
-import com.example.demoproject.repository.AuthRepository
-import com.example.demoproject.repository.ProductRepository
+import com.example.demoproject.data.model.ProductEntity
+import com.example.demoproject.data.repository.AuthRepository
+import com.example.demoproject.data.repository.ProductRepository
+import com.example.demoproject.util.LogMessages
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +23,9 @@ class MyProductViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val productRepository: ProductRepository,
     private val preferencesHelper: PreferencesHelper,
-) : ViewModel() {
+    @ApplicationContext private val context: Context,
+
+    ) : ViewModel() {
     private val _myProductUiStateLiveData = MutableLiveData<MyProductUiState>()
     val myProductUiStateLiveData: LiveData<MyProductUiState>
         get() = _myProductUiStateLiveData
@@ -29,6 +33,14 @@ class MyProductViewModel @Inject constructor(
     private val _selectedProductsEntity = MutableLiveData<Set<ProductEntity>>(emptySet())
     val selectedProductsEntity: LiveData<Set<ProductEntity>>
         get() = _selectedProductsEntity
+
+    companion object {
+        private const val TAG = "MyProductViewModel"
+    }
+
+    init {
+        fetchProductsEntity()
+    }
 
     fun fetchProductsEntity() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -51,18 +63,16 @@ class MyProductViewModel @Inject constructor(
                 )
 
             } catch (e: Exception) {
-                Log.e("MyProductViewModel", "Error loading my products", e)
+                Log.e(TAG, LogMessages.ERROR_LOAD_USER_PRODUCTS, e)
                 _myProductUiStateLiveData.postValue(
                     MyProductUiState(
-                        error = "An unexpected error occurred: ${e.message}",
+                        error = context.getString(R.string.error_unexpected, e.message),
                         isLoading = false
                     )
                 )
             }
         }
     }
-
-
 
     fun deleteSelectedProductsEntity() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -75,7 +85,7 @@ class MyProductViewModel @Inject constructor(
     }
 
     fun onProductSelected(productEntity: ProductEntity, isSelected: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val currentSelected = _selectedProductsEntity.value?.toMutableSet() ?: mutableSetOf()
             if (isSelected) {
                 currentSelected.add(productEntity)
@@ -91,4 +101,6 @@ class MyProductViewModel @Inject constructor(
             authRepository.logout()
         }
     }
+
+
 }

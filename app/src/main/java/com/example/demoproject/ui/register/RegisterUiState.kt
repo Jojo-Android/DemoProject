@@ -1,7 +1,9 @@
 package com.example.demoproject.ui.register
 
+import com.example.demoproject.ui.BaseUiState
+
 data class RegisterUiState(
-    val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
-    val error: String? = null,
-)
+    override val isLoading: Boolean = false,
+    override val error: String? = null,
+    val isSuccess: Boolean = false
+) : BaseUiState<Unit>(isLoading, error, null)

@@ -16,4 +16,19 @@
     <string name="menu_product">Product</string>
     <string name="menu_my_product">My Product</string>
     <string name="menu_logout">Logout</string>
+    <string name="title_dialog_logging_in">Logging in</string>
+    <string name="message_login_dialog">Please wait while we log you in.</string>
+    <string name="toast_login_successful">Login successful!</string>
+    <string name="title_logout_dialog">Logout</string>
+    <string name="message_logout_dialog">Are you sure you want to log out?</string>
+    <string name="toast_logout_successful">Logout successful!</string>
+    <string name="positive_button_dialog">Yes</string>
+    <string name="negative_button_dialog">No</string>
+    <string name="toast_product_save_successful">Products saved!</string>
+    <string name="empty_filed_login">Username and password cannot be empty</string>
+    <string name="toast_products_deleted">Products deleted!</string>
+    <string name="toast_registration_successful">Registration successful!</string>
+    <string name="error_empty_credentials">Username and password cannot be empty</string>
+    <string name="error_incorrect_credentials">Incorrect username or password</string>
+    <string name="error_unexpected">An unexpected error occurred: %1$s</string>
 </resources>

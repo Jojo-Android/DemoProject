@@ -1,4 +1,4 @@
-package com.example.demoproject.model
+package com.example.demoproject.data.model
 
 data class User(
     val username: String,

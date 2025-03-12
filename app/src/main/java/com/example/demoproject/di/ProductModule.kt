@@ -3,10 +3,10 @@ package com.example.demoproject.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.demoproject.api.ProductsService
-import com.example.demoproject.db.ProductDao
-import com.example.demoproject.db.AppDatabase
-import com.example.demoproject.db.UserDao
+import com.example.demoproject.data.api.ProductsService
+import com.example.demoproject.data.db.ProductDao
+import com.example.demoproject.data.db.AppDatabase
+import com.example.demoproject.data.db.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

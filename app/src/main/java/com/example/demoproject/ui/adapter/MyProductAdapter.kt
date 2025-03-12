@@ -1,11 +1,11 @@
-package com.example.demoproject.adapter
+package com.example.demoproject.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.example.demoproject.databinding.ListMyProductItemBinding
-import com.example.demoproject.model.ProductEntity
+import com.example.demoproject.data.model.ProductEntity
 import javax.inject.Inject
 
 class MyProductAdapter @Inject constructor() :

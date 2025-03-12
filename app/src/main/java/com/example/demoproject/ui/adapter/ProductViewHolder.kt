@@ -1,10 +1,10 @@
-package com.example.demoproject.adapter
+package com.example.demoproject.ui.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.crossfade
 import com.example.demoproject.databinding.ListItemBinding
-import com.example.demoproject.model.Product
+import com.example.demoproject.data.model.Product
 
 class ProductViewHolder(private val binding: ListItemBinding) :
     RecyclerView.ViewHolder(binding.root) {

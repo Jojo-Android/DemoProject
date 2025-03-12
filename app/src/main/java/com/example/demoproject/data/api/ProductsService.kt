@@ -1,6 +1,6 @@
-package com.example.demoproject.api
+package com.example.demoproject.data.api
 
-import com.example.demoproject.model.ResponseProducts
+import com.example.demoproject.data.model.ResponseProducts
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET

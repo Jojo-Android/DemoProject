@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demoproject.R
-import com.example.demoproject.adapter.MyProductAdapter
+import com.example.demoproject.ui.adapter.MyProductAdapter
+import com.example.demoproject.util.ToastHelper
 import com.example.demoproject.databinding.FragmentMyProductBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,16 +19,19 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MyProductFragment : Fragment(R.layout.fragment_my_product) {
-    private lateinit var binding: FragmentMyProductBinding
-
-    private val myProductViewModel: MyProductViewModel by viewModels()
 
     @Inject
     lateinit var myProductAdapter: MyProductAdapter
 
+    private lateinit var binding: FragmentMyProductBinding
+
+    private val myProductViewModel: MyProductViewModel by viewModels()
+
+
+
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentMyProductBinding.inflate(layoutInflater)
         return binding.root
@@ -36,8 +39,6 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        myProductViewModel.fetchProductsEntity()
         observerMyProduct()
 
         binding.apply {
@@ -85,7 +86,7 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
             }
             binding.buttonDelete.setOnClickListener {
                 myProductViewModel.deleteSelectedProductsEntity()
-                Toast.makeText(context, "Products deleted!", Toast.LENGTH_SHORT).show()
+                ToastHelper.showToast(requireContext(), getString(R.string.toast_products_deleted))
             }
         }
     }
@@ -101,7 +102,7 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
                 uiState.error != null -> {
                     hideLoading()
                     binding.textViewError.text = getString(R.string.error_message_general)
-                    Toast.makeText(context, uiState.error.toString(), Toast.LENGTH_LONG).show()
+                    ToastHelper.showToast(requireContext(), uiState.error.toString())
                 }
 
                 !uiState.data.isNullOrEmpty() -> {
@@ -128,16 +129,21 @@ class MyProductFragment : Fragment(R.layout.fragment_my_product) {
     }
 
     private fun showLogoutDialog(view: View) {
-        val builder = MaterialAlertDialogBuilder(requireContext()).setTitle("Logout")
-            .setMessage("Are you sure you want to log out?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                myProductViewModel.logout()
-                view.findNavController().navigate(R.id.action_myProductFragment_to_loginFragment)
-                dialog.dismiss()
-                Toast.makeText(context, "Logout successful!", Toast.LENGTH_LONG).show()
-            }.setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
+        val builder =
+            MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.title_logout_dialog))
+                .setMessage(getString(R.string.message_logout_dialog))
+                .setPositiveButton(getString(R.string.positive_button_dialog)) { dialog, _ ->
+                    myProductViewModel.logout()
+                    dialog.dismiss()
+                    view.findNavController()
+                        .navigate(R.id.action_myProductFragment_to_loginFragment)
+                    ToastHelper.showToast(
+                        requireContext(),
+                        getString(R.string.toast_logout_successful)
+                    )
+                }.setNegativeButton(getString(R.string.negative_button_dialog)) { dialog, _ ->
+                    dialog.dismiss()
+                }
 
         builder.show()
     }

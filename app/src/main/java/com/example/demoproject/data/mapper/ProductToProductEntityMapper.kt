@@ -1,7 +1,7 @@
-package com.example.demoproject.mapper
+package com.example.demoproject.data.mapper
 
-import com.example.demoproject.model.ProductEntity
-import com.example.demoproject.model.Product
+import com.example.demoproject.data.model.ProductEntity
+import com.example.demoproject.data.model.Product
 
 fun Product.toEntity(userId: Long): ProductEntity {
     return ProductEntity(

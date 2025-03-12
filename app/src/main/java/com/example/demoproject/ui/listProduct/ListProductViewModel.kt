@@ -1,19 +1,18 @@
 package com.example.demoproject.ui.listProduct
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.demoproject.data.PreferencesHelper
-import com.example.demoproject.model.Product
-import com.example.demoproject.repository.AuthRepository
-import com.example.demoproject.repository.ProductRepository
+import com.example.demoproject.data.model.Product
+import com.example.demoproject.data.repository.AuthRepository
+import com.example.demoproject.data.repository.ProductRepository
+import com.example.demoproject.util.LogMessages
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,13 +26,23 @@ class ListProductViewModel @Inject constructor(
     val listProductUiStateLiveData: LiveData<ListProductUiState>
         get() = _listProductUiState
 
+
     private val _selectedProducts = MutableLiveData<Set<Product>>(emptySet())
     val selectedProducts: LiveData<Set<Product>>
         get() = _selectedProducts
 
-    fun fetchProduct() {
+    companion object {
+        private const val TAG = "ListProductViewModel"
+    }
+
+    init {
+        fetchProduct()
+    }
+
+    private fun fetchProduct() {
         viewModelScope.launch(Dispatchers.IO) {
-            _listProductUiState.postValue(ListProductUiState(isLoading = true))
+            val loadingState = ListProductUiState(isLoading = true)
+            _listProductUiState.postValue(loadingState)
 
             try {
                 val data = productRepository.getProduct()
@@ -43,11 +52,17 @@ class ListProductViewModel @Inject constructor(
                     product.copy(isSelected = selectedIds.contains(product.id))
                 }
 
-                _listProductUiState.postValue(ListProductUiState(data = updatedProducts, isLoading = false))
+                val getDataState = ListProductUiState(data = updatedProducts, isLoading = false)
+                _listProductUiState.postValue(getDataState)
 
             } catch (e: Exception) {
-                Log.e("ListProductViewModel", "Error loading products", e)
-                _listProductUiState.postValue(ListProductUiState(error = e.message, isLoading = false))
+                Log.e(TAG, LogMessages.ERROR_FETCH_PRODUCTS, e)
+                _listProductUiState.postValue(
+                    ListProductUiState(
+                        error = e.message,
+                        isLoading = false,
+                    )
+                )
             }
         }
     }

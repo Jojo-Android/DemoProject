@@ -1,22 +1,19 @@
 package com.example.demoproject.ui.listProduct
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demoproject.R
-import com.example.demoproject.adapter.ProductAdapter
+import com.example.demoproject.ui.adapter.ProductAdapter
 import com.example.demoproject.data.PreferencesHelper
+import com.example.demoproject.util.ToastHelper
 import com.example.demoproject.databinding.FragmentProductListBinding
-import com.example.demoproject.model.Product
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -24,18 +21,19 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ListProductFragment : Fragment(R.layout.fragment_product_list) {
 
-    private lateinit var binding: FragmentProductListBinding
-
-    private val listProductViewModel: ListProductViewModel by viewModels()
-
     @Inject
     lateinit var productAdapter: ProductAdapter
 
     @Inject
     lateinit var preferencesHelper: PreferencesHelper
 
+    private lateinit var binding: FragmentProductListBinding
+
+    private val listProductViewModel: ListProductViewModel by viewModels()
+
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View? {
         binding = FragmentProductListBinding.inflate(layoutInflater)
         return binding.root
@@ -48,9 +46,6 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
         if (userId == -1L) {
             view.findNavController().navigate(R.id.loginFragment)
         }
-
-        listProductViewModel.fetchProduct()
-
         observerProduct()
 
         binding.apply {
@@ -101,7 +96,10 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
 
         binding.buttonSave.setOnClickListener {
             listProductViewModel.saveSelectedProducts()
-            Toast.makeText(context, "Products saved!", Toast.LENGTH_SHORT).show()
+            ToastHelper.showToast(
+                requireContext(),
+                getString(R.string.toast_product_save_successful)
+            )
         }
     }
 
@@ -116,7 +114,7 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
                 uiState.error != null -> {
                     hideLoading()
                     binding.textViewError.text = getString(R.string.error_message_general)
-                    Toast.makeText(context, uiState.error.toString(), Toast.LENGTH_LONG).show()
+                    ToastHelper.showToast(requireContext(), uiState.error.toString())
                 }
 
                 !uiState.data.isNullOrEmpty() -> {
@@ -135,15 +133,15 @@ class ListProductFragment : Fragment(R.layout.fragment_product_list) {
 
     private fun showLogoutDialog(view: View) {
         val builder = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Logout")
-            .setMessage("Are you sure you want to log out?")
-            .setPositiveButton("Yes") { dialog, _ ->
+            .setTitle(getString(R.string.title_logout_dialog))
+            .setMessage(getString(R.string.message_logout_dialog))
+            .setPositiveButton(getString(R.string.positive_button_dialog)) { dialog, _ ->
                 listProductViewModel.logout()
                 dialog.dismiss()
                 view.findNavController().navigate(R.id.action_ListProductFragment_to_loginFragment)
-                Toast.makeText(context, "Logout successful!", Toast.LENGTH_LONG).show()
+                ToastHelper.showToast(requireContext(), getString(R.string.toast_logout_successful))
             }
-            .setNegativeButton("No") { dialog, _ ->
+            .setNegativeButton(getString(R.string.negative_button_dialog)) { dialog, _ ->
                 dialog.dismiss()
             }
 

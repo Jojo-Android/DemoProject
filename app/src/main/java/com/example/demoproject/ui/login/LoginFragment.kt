@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.example.demoproject.R
+import com.example.demoproject.util.ToastHelper
 import com.example.demoproject.databinding.FragmentLoginBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -27,7 +27,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         setupTextWatchers()
@@ -42,12 +42,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 uiState.isLoading -> showLoadingDialog()
                 uiState.error != null -> {
                     hideLoadingDialog()
-                    Toast.makeText(context, uiState.error.toString(), Toast.LENGTH_LONG).show()
+                    ToastHelper.showToast(requireContext(), uiState.error.toString())
                 }
 
                 uiState.isSuccess -> {
                     hideLoadingDialog()
-                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                    ToastHelper.showToast(
+                        requireContext(),
+                        getString(R.string.toast_login_successful)
+                    )
                     view.findNavController()
                         .navigate(R.id.action_loginFragment_to_ListProductFragment)
                 }
@@ -68,11 +71,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun setupTextWatchers() {
         binding.editTextUsername.doOnTextChanged { text, _, _, _ ->
-            loginViewModel.setUsername(text.toString())  // Update ViewModel with username
+            loginViewModel.setUsername(text.toString())
         }
 
         binding.editTextPassword.doOnTextChanged { text, _, _, _ ->
-            loginViewModel.setPassword(text.toString())  // Update ViewModel with password
+            loginViewModel.setPassword(text.toString())
         }
     }
 
@@ -82,23 +85,20 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun showLoadingDialog() {
-        if (loadingDialog == null) {
-            val progressBar = CircularProgressIndicator(requireContext()).apply {
-                isIndeterminate = true
-            }
+        if (loadingDialog?.isShowing == true) return
 
-            loadingDialog = MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Logging in")
-                .setMessage("Please wait while we log you in.")
-                .setView(progressBar)
-                .setCancelable(false)
-                .create()
-
-            loadingDialog?.show()
-        } else {
-            loadingDialog?.show()
+        val progressBar = CircularProgressIndicator(requireContext()).apply {
+            isIndeterminate = true
         }
+
+        loadingDialog =
+            MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.title_dialog_logging_in))
+                .setMessage(getString(R.string.message_login_dialog)).setView(progressBar)
+                .setCancelable(false).create()
+
+        loadingDialog?.show()
     }
+
 
     private fun hideLoadingDialog() {
         loadingDialog?.dismiss()

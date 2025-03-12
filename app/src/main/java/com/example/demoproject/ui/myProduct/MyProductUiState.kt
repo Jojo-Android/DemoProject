@@ -1,9 +1,10 @@
 package com.example.demoproject.ui.myProduct
 
-import com.example.demoproject.model.ProductEntity
+import com.example.demoproject.ui.BaseUiState
+import com.example.demoproject.data.model.ProductEntity
 
 data class MyProductUiState(
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val data: List<ProductEntity>? = null,
-)
+    override val isLoading: Boolean = false,
+    override val error: String? = null,
+    override val data: List<ProductEntity>? = null
+) : BaseUiState<List<ProductEntity>>(isLoading, error, data)
